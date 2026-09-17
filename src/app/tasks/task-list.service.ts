@@ -1,3 +1,5 @@
+import { Injectable } from "@angular/core";
+import { OfflineStorageService } from "../offline/offline-storage.service";
 import { Task } from "../offline/offline-db";
 
 export interface TaskListLoadResult {
@@ -16,8 +18,9 @@ export interface TaskListStorage {
   replaceTasks(tasks: readonly Task[]): Promise<void>;
 }
 
+@Injectable({ providedIn: "root" })
 export class TaskListService {
-  constructor(private readonly storage: TaskListStorage) {}
+  constructor(private readonly storage: OfflineStorageService) {}
 
   async loadTasksForAccount(
     accountId: string,
