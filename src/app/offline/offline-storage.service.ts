@@ -1,5 +1,8 @@
-import { Injectable, NgZone, OnDestroy } from "@angular/core";
+import { Injectable, OnDestroy } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
+import { Subscription } from "rxjs";
+import { ConnectivityService } from "../platform/connectivity.service";
+import { BackgroundSyncService } from "../platform/background-sync.service";
 import {
   claimNextReport,
   openFieldFixDb,
@@ -13,39 +16,31 @@ import {
   transactionDone,
 } from "./offline-db";
 
-interface SyncRegistration extends ServiceWorkerRegistration {
-  sync?: { register(tag: string): Promise<void> };
-}
-
 @Injectable({ providedIn: "root" })
 export class OfflineStorageService implements OnDestroy {
-  /** navigator.onLine is only a hint; a failed request leaves the report queued. */
-  readonly online$ = new BehaviorSubject<boolean>(navigator.onLine);
+  /** Connectivity is only a hint; a failed request leaves the report queued. */
+  readonly online$ = this.connectivity.online$;
   readonly pendingCount$ = new BehaviorSubject<number>(0);
   private dbPromise = openFieldFixDb();
   private retryTimer?: ReturnType<typeof setTimeout>;
   private processing?: Promise<void>;
-  private readonly onlineHandler = () =>
-    this.zone.run(() => {
-      this.online$.next(true);
-      void this.scheduleSync();
-    });
-  private readonly offlineHandler = () =>
-    this.zone.run(() => this.online$.next(false));
-  private readonly workerMessageHandler = (event: MessageEvent) => {
-    if (event.data?.type === "fieldfix-queue-changed")
-      void this.refreshPendingCount();
-  };
+  private readonly subscriptions = new Subscription();
 
-  constructor(private readonly zone: NgZone) {
-    window.addEventListener("online", this.onlineHandler);
-    window.addEventListener("offline", this.offlineHandler);
-    navigator.serviceWorker?.addEventListener(
-      "message",
-      this.workerMessageHandler,
+  constructor(
+    private readonly connectivity: ConnectivityService,
+    private readonly backgroundSync: BackgroundSyncService,
+  ) {
+    this.subscriptions.add(
+      this.online$.subscribe((online) => {
+        if (online) void this.scheduleSync();
+      }),
+    );
+    this.subscriptions.add(
+      this.backgroundSync.queueChanged$.subscribe(() => {
+        void this.refreshPendingCount();
+      }),
     );
     void this.refreshPendingCount();
-    if (navigator.onLine) void this.scheduleSync();
   }
 
   /** The server is authoritative; replace the local cache in one atomic transaction. */
@@ -126,17 +121,7 @@ export class OfflineStorageService implements OnDestroy {
   /** Background Sync is an optimization; the page timer covers unsupported browsers. */
   async scheduleSync(): Promise<void> {
     if (!this.online$.value) return;
-    if ("serviceWorker" in navigator) {
-      try {
-        const registration =
-          (await navigator.serviceWorker.getRegistration()) as
-            | SyncRegistration
-            | undefined;
-        await registration?.sync?.register(SYNC_TAG);
-      } catch {
-        /* Registration was denied; the page retry remains active. */
-      }
-    }
+    await this.backgroundSync.register(SYNC_TAG);
     if (!this.processing)
       this.processing = this.processQueue().finally(() => {
         this.processing = undefined;
@@ -185,12 +170,7 @@ export class OfflineStorageService implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    window.removeEventListener("online", this.onlineHandler);
-    window.removeEventListener("offline", this.offlineHandler);
-    navigator.serviceWorker?.removeEventListener(
-      "message",
-      this.workerMessageHandler,
-    );
+    this.subscriptions.unsubscribe();
     clearTimeout(this.retryTimer);
   }
 }
