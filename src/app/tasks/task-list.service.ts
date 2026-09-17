@@ -36,7 +36,10 @@ export class TaskListService {
       );
 
       if (response.status === 401 || response.status === 403) {
-        return { tasks: [], error: "Your session no longer permits access to these tasks." };
+        return {
+          tasks: [],
+          error: "Your session no longer permits access to these tasks.",
+        };
       }
 
       if (!response.ok) {
@@ -54,8 +57,7 @@ export class TaskListService {
     } catch (error) {
       return {
         tasks: cachedTasks,
-        error:
-          error instanceof Error ? error.message : "Could not load tasks",
+        error: error instanceof Error ? error.message : "Could not load tasks",
       };
     }
   }

@@ -80,13 +80,21 @@ export function openFieldFixDb(): Promise<IDBDatabase> {
 }
 
 /** The claim transaction prevents concurrent delivery by tabs and the service worker. */
+export interface QueueDbDependencies {
+  requestResultFn?: <T>(request: IDBRequest<T>) => Promise<T>;
+  transactionDoneFn?: (transaction: IDBTransaction) => Promise<void>;
+}
+
 export async function claimNextReport(
   db: IDBDatabase,
   owner: string,
+  dependencies: QueueDbDependencies = {},
 ): Promise<PendingReport | undefined> {
+  const { requestResultFn = requestResult, transactionDoneFn = transactionDone } =
+    dependencies;
   const tx = db.transaction("pending_reports", "readwrite");
   const store = tx.objectStore("pending_reports");
-  const all = await requestResult(
+  const all = await requestResultFn(
     store.getAll() as IDBRequest<PendingReport[]>,
   );
   const now = Date.now();
@@ -103,7 +111,7 @@ export async function claimNextReport(
     candidate.leaseUntil = now + 60_000;
     store.put(candidate);
   }
-  await transactionDone(tx);
+  await transactionDoneFn(tx);
   return candidate;
 }
 
@@ -114,10 +122,13 @@ export async function settleReport(
   owner: string,
   outcome: "sent" | "retry" | "conflict",
   error?: string,
+  dependencies: QueueDbDependencies = {},
 ): Promise<void> {
+  const { requestResultFn = requestResult, transactionDoneFn = transactionDone } =
+    dependencies;
   const tx = db.transaction("pending_reports", "readwrite");
   const store = tx.objectStore("pending_reports");
-  const current = await requestResult(
+  const current = await requestResultFn(
     store.get(id) as IDBRequest<PendingReport | undefined>,
   );
   if (current?.leaseOwner === owner) {
@@ -136,7 +147,7 @@ export async function settleReport(
       store.put(current);
     }
   }
-  await transactionDone(tx);
+  await transactionDoneFn(tx);
 }
 
 /** 409/412 require human review; permanent 4xx responses remain visible as conflicts. */

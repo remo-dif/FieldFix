@@ -40,7 +40,10 @@ export class TaskReportService {
       };
     }
 
-    if (form.invalid || !Number.isSafeInteger(this.calculateTotalCents(partsControl))) {
+    if (
+      form.invalid ||
+      !Number.isSafeInteger(this.calculateTotalCents(partsControl))
+    ) {
       return {
         isValid: false,
         message: "Correct the highlighted fields before saving.",
@@ -118,11 +121,16 @@ export class TaskReportService {
     }
 
     await storage.enqueueReport(result.payload);
-    return { ok: true, message: "Report saved on this device and queued for sync." };
+    return {
+      ok: true,
+      message: "Report saved on this device and queued for sync.",
+    };
   }
 
   static partError(index: number, form: FormGroup): string {
-    const row = (form.controls.parts as FormArray).at(index) as FormGroup | null;
+    const row = (form.controls.parts as FormArray).at(
+      index,
+    ) as FormGroup | null;
     if (!row || row.valid) return "";
 
     const sku = row.controls.sku as AbstractControl;
