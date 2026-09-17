@@ -7,7 +7,6 @@ import {
 import { CommonModule } from "@angular/common";
 import { BehaviorSubject, combineLatest } from "rxjs";
 import {
-  AbstractControl,
   FormArray,
   FormControl,
   FormGroup,
@@ -32,8 +31,9 @@ import {
   IonToolbar,
 } from "@ionic/angular";
 import { OfflineStorageService } from "../offline/offline-storage.service";
-import { PartRow, ReportPayload, Task } from "../offline/offline-db";
+import { Task } from "../offline/offline-db";
 import { AccountSessionService } from "../offline/account-session.service";
+import { TaskReportService } from "./task-report.service";
 
 type PartForm = FormGroup<{
   sku: FormControl<string>;
@@ -41,8 +41,6 @@ type PartForm = FormGroup<{
   quantity: FormControl<number>;
   unitCost: FormControl<number>;
 }>;
-const nonBlank = (control: AbstractControl) =>
-  String(control.value ?? "").trim().length ? null : { blank: true };
 
 @Component({
   selector: "app-task-report",
@@ -92,7 +90,7 @@ export class TaskReportComponent implements OnInit {
     }),
     technicalNotes: new FormControl("", {
       nonNullable: true,
-      validators: [nonBlank, Validators.maxLength(4000)],
+      validators: [TaskReportService.nonBlank, Validators.maxLength(4000)],
     }),
     parts: new FormArray<PartForm>([]),
   });
@@ -100,6 +98,7 @@ export class TaskReportComponent implements OnInit {
   constructor(
     readonly storage: OfflineStorageService,
     private readonly account: AccountSessionService,
+    private readonly reportService: TaskReportService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -126,20 +125,7 @@ export class TaskReportComponent implements OnInit {
   }
 
   partError(index: number): string {
-    const row = this.parts.at(index);
-    if (!row || row.valid) return "";
-    const sku = row.controls.sku;
-    const description = row.controls.description;
-    const quantity = row.controls.quantity;
-    const unitCost = row.controls.unitCost;
-    if (sku.invalid && sku.touched) return "Add a valid part code.";
-    if (description.invalid && description.touched)
-      return "Add a part description.";
-    if (quantity.invalid && quantity.touched)
-      return "Quantity must be at least 1.";
-    if (unitCost.invalid && unitCost.touched)
-      return "Unit cost must be 0 or more.";
-    return "Complete this line before saving.";
+    return TaskReportService.partError(index, this.form);
   }
 
   /** Round each unit price to cents; the server must recalculate and validate the total. */
@@ -192,36 +178,22 @@ export class TaskReportComponent implements OnInit {
   /** Commit locally before asynchronous sync; a network timeout never removes the report. */
   async submit(): Promise<void> {
     if (this.saving || !this.task || !this.accountId) return;
-    if (!this.hasParts) {
-      this.form.markAllAsTouched();
-      this.message = "Add at least one replaced part before saving.";
-      return;
-    }
-    if (this.form.invalid || !Number.isSafeInteger(this.totalCents)) {
-      this.form.markAllAsTouched();
-      this.message = "Correct the highlighted fields before saving.";
-      return;
-    }
+
     this.saving = true;
     try {
-      const parts: PartRow[] = this.parts.controls.map((row) => ({
-        sku: row.controls.sku.value.trim(),
-        description: row.controls.description.value.trim(),
-        quantity: Number(row.controls.quantity.value),
-        unitCostCents: Math.round(Number(row.controls.unitCost.value) * 100),
-      }));
-      const report: ReportPayload = {
-        id: crypto.randomUUID(),
-        accountId: this.accountId,
-        taskId: this.task.id,
-        status: this.form.controls.status.value as "completed" | "blocked",
-        technicalNotes: this.form.controls.technicalNotes.value.trim(),
-        parts,
-        totalCostCents: this.totalCents,
-        lastModifiedTimestamp: this.task.lastModifiedTimestamp,
-        createdAt: new Date().toISOString(),
-      };
-      await this.storage.enqueueReport(report);
+      const result = this.reportService.validateAndBuildPayload(
+        this.task,
+        this.accountId,
+        this.form,
+      );
+
+      if (!result.isValid || !result.payload) {
+        this.form.markAllAsTouched();
+        this.message = result.message;
+        return;
+      }
+
+      await this.storage.enqueueReport(result.payload);
       this.message = "Report saved on this device and queued for sync.";
       this.form.reset();
       this.parts.clear();
