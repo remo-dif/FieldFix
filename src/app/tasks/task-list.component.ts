@@ -16,7 +16,7 @@ import {
 import { OfflineStorageService } from "../offline/offline-storage.service";
 import { Task } from "../offline/offline-db";
 import { AccountSessionService } from "../offline/account-session.service";
-import { readJsonResponse } from "../offline/api-response";
+import { TaskListService } from "./task-list.service";
 
 @Component({
   selector: "app-task-list",
@@ -51,6 +51,7 @@ export class TaskListComponent implements OnInit {
   constructor(
     readonly storage: OfflineStorageService,
     private readonly account: AccountSessionService,
+    private readonly taskListService: TaskListService,
   ) {}
 
   /** Show the IndexedDB copy immediately; refresh from the network without blocking navigation. */
@@ -66,43 +67,16 @@ export class TaskListComponent implements OnInit {
       this.loading$.next(false);
       return;
     }
-    try {
-      this.tasks$.next(await this.storage.getTasks());
-    } catch {
-      /* IndexedDB may be blocked; still try the network. */
+
+    const loadResult = await this.taskListService.loadTasksForAccount(accountId);
+
+    this.tasks$.next(loadResult.tasks);
+    if (loadResult.error && !loadResult.tasks.length) {
+      this.error$.next(loadResult.error);
+    } else {
+      this.error$.next("");
     }
-    try {
-      const response = await fetch(
-        `/api/accounts/${encodeURIComponent(accountId)}/tasks`,
-        { credentials: "same-origin" },
-      );
-      if (response.status === 401 || response.status === 403) {
-        this.tasks$.next([]);
-        this.error$.next(
-          "Your session no longer permits access to these tasks.",
-        );
-        this.loading$.next(false);
-        return;
-      }
-      if (!response.ok) return;
-      const tasks = await readJsonResponse<Task[]>(response, "Tasks API");
-      if (!Array.isArray(tasks))
-        throw new Error("Tasks API returned an invalid task list");
-      this.tasks$.next(tasks);
-      try {
-        await this.storage.replaceTasks(tasks);
-      } catch {
-        /* Keep the fresh network result visible when local storage is unavailable. */
-      }
-    } catch (error) {
-      // Keep cached tasks visible, but explain why an empty list could not refresh.
-      if (!this.tasks$.value.length)
-        this.error$.next(
-          error instanceof Error ? error.message : "Could not load tasks",
-        );
-    } finally {
-      this.loading$.next(false);
-    }
+    this.loading$.next(false);
   }
 
   trackTask(_index: number, task: Task): string {

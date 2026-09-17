@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": "^22.22.3 || ^24.15.0 || ^26.0.0" },
+  "engines": {
+    "node": "^22.22.3 || ^24.15.0 || ^26.0.0"
+  },
   "scripts": {
     "start": "ng serve",
     "build": "ng build && node scripts/build-service-worker.mjs",
@@ -32,8 +34,9 @@
   "devDependencies": {
     "@angular/build": "^22.1.0",
     "@angular/cli": "^22.1.0",
-    "typescript": "~6.0.0",
     "esbuild": "^0.25.0",
+    "typescript": "~6.0.0",
+    "vitest": "^4.1.11",
     "workbox-build": "^7.4.0"
   }
 }
