@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, combineLatest } from 'rxjs';
 import { AbstractControl, FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   IonBadge, IonButton, IonContent, IonHeader, IonInput, IonItem, IonLabel,
@@ -38,6 +38,7 @@ export class TaskReportComponent implements OnInit {
   readonly loading$ = new BehaviorSubject<boolean>(true);
   readonly online$ = this.storage.online$;
   readonly pendingCount$ = this.storage.pendingCount$;
+  readonly view$ = combineLatest({ loading: this.loading$, online: this.online$, pendingCount: this.pendingCount$ });
 
   readonly form = new FormGroup({
     status: new FormControl<'completed' | 'blocked' | ''>('', { nonNullable: true, validators: [Validators.required] }),

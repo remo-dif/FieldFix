@@ -1,17 +1,18 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Task Report</ion-title>
-    <ion-badge slot="end" [color]="(online$ | async) ? 'success' : 'warning'" aria-live="polite">
-      {{ (online$ | async) ? 'Online' : 'Offline' }}
-    </ion-badge>
-  </ion-toolbar>
-</ion-header>
+<ng-container *ngIf="view$ | async as view">
+  <ion-header>
+    <ion-toolbar>
+      <ion-title>Task Report</ion-title>
+      <ion-badge slot="end" [color]="view.online ? 'success' : 'warning'" aria-live="polite">
+        {{ view.online ? 'Online' : 'Offline' }}
+      </ion-badge>
+    </ion-toolbar>
+  </ion-header>
 
-<ion-content class="ion-padding">
-  <ng-container *ngIf="!(loading$ | async); else loadingState">
+  <ion-content class="ion-padding">
+  <ng-container *ngIf="!view.loading; else loadingState">
     <!-- Keep the queue count visible even when the browser reports uncertain connectivity. -->
     <p *ngIf="task">{{ task.title }} · {{ task.assetId }}</p>
-    <ion-note color="medium">Pending reports: {{ pendingCount$ | async }}</ion-note>
+    <ion-note color="medium">Pending reports: {{ view.pendingCount }}</ion-note>
     <p role="status" aria-live="polite">{{ message }}</p>
 
     <form [formGroup]="form" (ngSubmit)="submit()" *ngIf="task; else noTaskState">
@@ -59,7 +60,7 @@
 
       <p>Parts total: {{ totalCents / 100 | currency:'EUR':'symbol':'1.2-2' }}</p>
       <ion-button expand="block" type="submit" [disabled]="saving">
-        {{ saving ? 'Saving locally…' : ((online$ | async) ? 'Save and Sync' : 'Queue for Sync') }}
+        {{ saving ? 'Saving locally…' : (view.online ? 'Save and Sync' : 'Queue for Sync') }}
       </ion-button>
     </form>
 
@@ -90,4 +91,5 @@
       </ion-item>
     </ion-list>
   </ng-template>
-</ion-content>
+  </ion-content>
+</ng-container>

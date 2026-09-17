@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, combineLatest } from 'rxjs';
 import { RouterLink } from '@angular/router';
 import { IonBadge, IonContent, IonHeader, IonItem, IonLabel, IonList, IonSkeletonText, IonTitle, IonToolbar } from '@ionic/angular';
 import { OfflineStorageService } from '../offline/offline-storage.service';
@@ -19,6 +19,9 @@ export class TaskListComponent implements OnInit {
   readonly tasks$ = new BehaviorSubject<Task[]>([]);
   readonly error$ = new BehaviorSubject<string>('');
   readonly loading$ = new BehaviorSubject<boolean>(true);
+  readonly view$ = combineLatest({
+    tasks: this.tasks$, error: this.error$, loading: this.loading$, online: this.storage.online$,
+  });
   constructor(readonly storage: OfflineStorageService, private readonly account: AccountSessionService) {}
 
   /** Show the IndexedDB copy immediately; refresh from the network without blocking navigation. */

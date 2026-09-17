@@ -1,18 +1,18 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Assigned Tasks</ion-title>
-    <ion-badge slot="end" [color]="(storage.online$ | async) ? 'success' : 'warning'">
-      {{ (storage.online$ | async) ? 'Online' : 'Offline' }}
-    </ion-badge>
-  </ion-toolbar>
-</ion-header>
+<ng-container *ngIf="view$ | async as view">
+  <ion-header>
+    <ion-toolbar>
+      <ion-title>Assigned Tasks</ion-title>
+      <ion-badge slot="end" [color]="view.online ? 'success' : 'warning'">
+        {{ view.online ? 'Online' : 'Offline' }}
+      </ion-badge>
+    </ion-toolbar>
+  </ion-header>
 
-<ion-content>
-  <ng-container *ngIf="(tasks$ | async) as tasks">
-    <p role="alert" *ngIf="error$ | async as error">{{ error }}</p>
+  <ion-content>
+    <p role="alert" *ngIf="view.error">{{ view.error }}</p>
 
-    <ion-list *ngIf="tasks.length || !(loading$ | async); else skeletonState">
-      <ion-item *ngFor="let task of tasks; trackBy: trackTask" [routerLink]="['/tasks', task.id, 'report']">
+    <ion-list *ngIf="view.tasks.length || !view.loading; else skeletonState">
+      <ion-item *ngFor="let task of view.tasks; trackBy: trackTask" [routerLink]="['/tasks', task.id, 'report']">
         {{ task.title }} · {{ task.assetId }}
       </ion-item>
     </ion-list>
@@ -28,16 +28,16 @@
       </ion-list>
     </ng-template>
 
-    <ng-template [ngIf]="tasks.length === 0 && !(loading$ | async)">
+    <ng-template [ngIf]="view.tasks.length === 0 && !view.loading">
       <ion-item lines="none">
         <ion-label class="ion-text-center">
           <h2>No tasks assigned</h2>
-          <p *ngIf="(error$ | async) as error; else noTasksHint">{{ error }}</p>
+          <p *ngIf="view.error; else noTasksHint">{{ view.error }}</p>
           <ng-template #noTasksHint>
             <p>Everything is current right now. New work will appear here when it is assigned.</p>
           </ng-template>
         </ion-label>
       </ion-item>
     </ng-template>
-  </ng-container>
-</ion-content>
+  </ion-content>
+</ng-container>
