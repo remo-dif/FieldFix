@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
-import { OfflineStorageService } from "./offline-storage.service";
-import { readJsonResponse } from "./api-response";
 import { AccountSessionStateService } from "./account-session-state.service";
+import { readJsonResponse } from "./api-response";
+import { OfflineStorageService } from "./offline-storage.service";
 
 interface SessionResponse {
   accountId: string;

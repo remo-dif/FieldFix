@@ -1,14 +1,13 @@
 import { Injectable, OnDestroy } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
-import { Subscription } from "rxjs";
+import { BehaviorSubject, Subscription } from "rxjs";
 import { BackgroundSyncService } from "../platform/background-sync.service";
 import { ConnectivityService } from "../platform/connectivity.service";
 import {
-  claimNextReport,
-  PendingReport,
-  sendReport,
-  settleReport,
-  SYNC_TAG,
+    claimNextReport,
+    PendingReport,
+    sendReport,
+    settleReport,
+    SYNC_TAG,
 } from "./offline-db";
 import { OfflineStorageRepository } from "./offline-storage.repository";
 
