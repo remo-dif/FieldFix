@@ -1,0 +1,6 @@
+{
+  "name": "FieldFix",
+  "type": "angular-standalone",
+  "defaultProject": "fieldfix",
+  "integrations": {}
+}

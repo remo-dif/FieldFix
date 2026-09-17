@@ -1,0 +1,93 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Task Report</ion-title>
+    <ion-badge slot="end" [color]="(online$ | async) ? 'success' : 'warning'" aria-live="polite">
+      {{ (online$ | async) ? 'Online' : 'Offline' }}
+    </ion-badge>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ng-container *ngIf="!(loading$ | async); else loadingState">
+    <!-- Keep the queue count visible even when the browser reports uncertain connectivity. -->
+    <p *ngIf="task">{{ task.title }} · {{ task.assetId }}</p>
+    <ion-note color="medium">Pending reports: {{ pendingCount$ | async }}</ion-note>
+    <p role="status" aria-live="polite">{{ message }}</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" *ngIf="task; else noTaskState">
+      <ion-list>
+        <ion-item>
+          <ion-select label="Work status" label-placement="stacked" formControlName="status">
+            <ion-select-option value="completed">Completed</ion-select-option>
+            <ion-select-option value="blocked">Blocked</ion-select-option>
+          </ion-select>
+        </ion-item>
+        <ion-note color="danger" *ngIf="form.controls.status.touched && form.controls.status.invalid">Select a status.</ion-note>
+
+        <ion-item>
+          <ion-textarea label="Technical notes" label-placement="stacked" formControlName="technicalNotes"
+            [autoGrow]="true" [maxlength]="4000"></ion-textarea>
+        </ion-item>
+        <ion-note color="danger" *ngIf="form.controls.technicalNotes.touched && form.controls.technicalNotes.invalid">
+          Notes are required (maximum 4,000 characters).
+        </ion-note>
+      </ion-list>
+
+      <section formArrayName="parts" aria-label="Replaced parts">
+        <!-- Dynamic rows use reactive controls; adding or removing one preserves the other fields. -->
+        <h2>Replaced Parts</h2>
+        <div *ngFor="let row of parts.controls; let i = index" [formGroupName]="i">
+          <ion-item>
+            <ion-input label="Part code" label-placement="stacked" formControlName="sku"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-input label="Description" label-placement="stacked" formControlName="description"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-input type="number" min="1" step="1" label="Quantity" label-placement="stacked" formControlName="quantity"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-input type="number" min="0" step="0.01" label="Unit cost (€)" label-placement="stacked" formControlName="unitCost"></ion-input>
+          </ion-item>
+          <ion-note color="danger" *ngIf="row.touched && row.invalid">{{ partError(i) }}</ion-note>
+          <ion-button type="button" fill="clear" color="danger" (click)="removePart(i)" [attr.aria-label]="'Remove part ' + (i + 1)">
+            Remove
+          </ion-button>
+        </div>
+        <ion-button type="button" fill="outline" (click)="addPart()">Add Part</ion-button>
+      </section>
+
+      <p>Parts total: {{ totalCents / 100 | currency:'EUR':'symbol':'1.2-2' }}</p>
+      <ion-button expand="block" type="submit" [disabled]="saving">
+        {{ saving ? 'Saving locally…' : ((online$ | async) ? 'Save and Sync' : 'Queue for Sync') }}
+      </ion-button>
+    </form>
+
+    <ng-template #noTaskState>
+      <ion-note color="medium">Task unavailable in the local cache.</ion-note>
+    </ng-template>
+  </ng-container>
+
+  <ng-template #loadingState>
+    <ion-list>
+      <ion-item>
+        <ion-label>
+          <ion-skeleton-text animated style="width: 60%;"></ion-skeleton-text>
+          <ion-skeleton-text animated style="width: 90%; margin-top: 10px;"></ion-skeleton-text>
+        </ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-label>
+          <ion-skeleton-text animated style="width: 78%;"></ion-skeleton-text>
+          <ion-skeleton-text animated style="width: 100%; margin-top: 10px;"></ion-skeleton-text>
+        </ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-label>
+          <ion-skeleton-text animated style="width: 45%;"></ion-skeleton-text>
+          <ion-skeleton-text animated style="width: 90%; margin-top: 10px;"></ion-skeleton-text>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </ng-template>
+</ion-content>

@@ -1,0 +1,43 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Assigned Tasks</ion-title>
+    <ion-badge slot="end" [color]="(storage.online$ | async) ? 'success' : 'warning'">
+      {{ (storage.online$ | async) ? 'Online' : 'Offline' }}
+    </ion-badge>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ng-container *ngIf="(tasks$ | async) as tasks">
+    <p role="alert" *ngIf="error$ | async as error">{{ error }}</p>
+
+    <ion-list *ngIf="tasks.length || !(loading$ | async); else skeletonState">
+      <ion-item *ngFor="let task of tasks; trackBy: trackTask" [routerLink]="['/tasks', task.id, 'report']">
+        {{ task.title }} · {{ task.assetId }}
+      </ion-item>
+    </ion-list>
+
+    <ng-template #skeletonState>
+      <ion-list>
+        <ion-item *ngFor="let item of [1,2,3]; let i = index" lines="full">
+          <ion-label>
+            <ion-skeleton-text animated style="width: 60%;"></ion-skeleton-text>
+            <ion-skeleton-text animated style="width: 35%; margin-top: 8px;"></ion-skeleton-text>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ng-template>
+
+    <ng-template [ngIf]="tasks.length === 0 && !(loading$ | async)">
+      <ion-item lines="none">
+        <ion-label class="ion-text-center">
+          <h2>No tasks assigned</h2>
+          <p *ngIf="(error$ | async) as error; else noTasksHint">{{ error }}</p>
+          <ng-template #noTasksHint>
+            <p>Everything is current right now. New work will appear here when it is assigned.</p>
+          </ng-template>
+        </ion-label>
+      </ion-item>
+    </ng-template>
+  </ng-container>
+</ion-content>
