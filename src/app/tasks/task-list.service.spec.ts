@@ -4,7 +4,16 @@ import { TaskListService } from "./task-list.service";
 describe("TaskListService", () => {
   it("returns cached tasks when the network is unavailable", async () => {
     const storage = {
-      getTasks: vi.fn().mockResolvedValue([{ id: "t1", title: "Task 1", assetId: "A-1", lastModifiedTimestamp: "2025-01-01T00:00:00.000Z" }]),
+      getTasks: vi
+        .fn()
+        .mockResolvedValue([
+          {
+            id: "t1",
+            title: "Task 1",
+            assetId: "A-1",
+            lastModifiedTimestamp: "2025-01-01T00:00:00.000Z",
+          },
+        ]),
       replaceTasks: vi.fn(),
     } as any;
 
@@ -29,7 +38,12 @@ describe("TaskListService", () => {
       ok: true,
       status: 200,
       json: async () => [
-        { id: "t2", title: "Task 2", assetId: "A-2", lastModifiedTimestamp: "2025-01-02T00:00:00.000Z" },
+        {
+          id: "t2",
+          title: "Task 2",
+          assetId: "A-2",
+          lastModifiedTimestamp: "2025-01-02T00:00:00.000Z",
+        },
       ],
     });
 

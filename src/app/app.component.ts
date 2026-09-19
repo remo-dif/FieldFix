@@ -15,6 +15,7 @@ export class AppComponent implements OnInit {
   constructor(private readonly storagePersistence: StoragePersistenceService) {}
 
   async ngOnInit(): Promise<void> {
-    this.persistenceStatus = await this.storagePersistence.ensurePersistentStorage();
+    this.persistenceStatus =
+      await this.storagePersistence.ensurePersistentStorage();
   }
 }

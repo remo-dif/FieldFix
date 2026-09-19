@@ -70,7 +70,8 @@ export class TaskListComponent implements OnInit {
       return;
     }
 
-    const loadResult = await this.taskListService.loadTasksForAccount(accountId);
+    const loadResult =
+      await this.taskListService.loadTasksForAccount(accountId);
 
     this.tasks$.next(loadResult.tasks);
     if (loadResult.error && !loadResult.tasks.length) {

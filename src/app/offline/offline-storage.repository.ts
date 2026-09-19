@@ -1,11 +1,11 @@
 import { Injectable } from "@angular/core";
 import {
-    openFieldFixDb,
-    PendingReport,
-    ReportPayload,
-    requestResult,
-    Task,
-    transactionDone
+  openFieldFixDb,
+  PendingReport,
+  ReportPayload,
+  requestResult,
+  Task,
+  transactionDone,
 } from "./offline-db";
 
 @Injectable({ providedIn: "root" })

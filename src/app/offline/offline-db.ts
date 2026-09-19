@@ -90,8 +90,10 @@ export async function claimNextReport(
   owner: string,
   dependencies: QueueDbDependencies = {},
 ): Promise<PendingReport | undefined> {
-  const { requestResultFn = requestResult, transactionDoneFn = transactionDone } =
-    dependencies;
+  const {
+    requestResultFn = requestResult,
+    transactionDoneFn = transactionDone,
+  } = dependencies;
   const tx = db.transaction("pending_reports", "readwrite");
   const store = tx.objectStore("pending_reports");
   const all = await requestResultFn(
@@ -124,8 +126,10 @@ export async function settleReport(
   error?: string,
   dependencies: QueueDbDependencies = {},
 ): Promise<void> {
-  const { requestResultFn = requestResult, transactionDoneFn = transactionDone } =
-    dependencies;
+  const {
+    requestResultFn = requestResult,
+    transactionDoneFn = transactionDone,
+  } = dependencies;
   const tx = db.transaction("pending_reports", "readwrite");
   const store = tx.objectStore("pending_reports");
   const current = await requestResultFn(

@@ -245,7 +245,9 @@ describe("sendReport", () => {
 
   it("classifies client conflict responses as conflict", async () => {
     const originalFetch = globalThis.fetch;
-    globalThis.fetch = vi.fn().mockResolvedValue({ ok: false, status: 409 }) as any;
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValue({ ok: false, status: 409 }) as any;
 
     const report = {
       id: "r-1",
@@ -271,7 +273,9 @@ describe("sendReport", () => {
 
   it("retries on fetch exceptions", async () => {
     const originalFetch = globalThis.fetch;
-    globalThis.fetch = vi.fn().mockRejectedValue(new Error("network down")) as any;
+    globalThis.fetch = vi
+      .fn()
+      .mockRejectedValue(new Error("network down")) as any;
 
     const report = {
       id: "r-1",
