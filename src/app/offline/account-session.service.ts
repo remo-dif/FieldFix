@@ -38,8 +38,12 @@ export class AccountSessionService {
       return previous;
     }
     if (!response.ok) {
-      if (response.status === 401 || response.status === 403)
+      if (response.status === 401 || response.status === 403) {
         this.state.setAccountLocked();
+        if (typeof window !== "undefined") {
+          window.location.assign("/api/auth/login");
+        }
+      }
       throw new Error(`Session unavailable (${response.status})`);
     }
     const session = await readJsonResponse<SessionResponse>(
@@ -59,5 +63,15 @@ export class AccountSessionService {
     await this.storage.clearAccountData();
     this.state.clearVerifiedAccount();
     this.state.clearAccountLock();
+
+    if (typeof document !== "undefined") {
+      const form = document.createElement("form");
+      form.method = "post";
+      form.action = "/api/auth/logout";
+      form.style.display = "none";
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+    }
   }
 }

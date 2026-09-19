@@ -85,7 +85,6 @@ export class TaskListComponent implements OnInit {
   async signOut(): Promise<void> {
     try {
       await this.account.signOut();
-      window.location.href = "/tasks";
     } catch (error) {
       this.error$.next(
         error instanceof Error

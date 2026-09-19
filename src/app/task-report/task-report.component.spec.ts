@@ -1,4 +1,5 @@
 import "@angular/compiler";
+import { Injector } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
 import { describe, expect, it, vi } from "vitest";
 import { TaskReportComponent } from "./task-report.component";
@@ -19,10 +20,18 @@ function fixture() {
     enqueueReport: vi.fn().mockResolvedValue(undefined),
   };
   const account = { ensureAccount: vi.fn().mockResolvedValue("acct-1") };
+  const injector = Injector.create({
+    providers: [
+      TaskReportService,
+      { provide: "storage", useValue: storage },
+      { provide: "account", useValue: account },
+    ],
+  });
+  const service = injector.get(TaskReportService);
   const page = new TaskReportComponent(
     storage as any,
     account as any,
-    new TaskReportService(),
+    service,
   );
   page.taskId = "t-1";
   return { page, storage, account };
@@ -73,6 +82,29 @@ describe("TaskReportComponent", () => {
     expect(f.page.message).toContain("Local save failed");
     expect(f.page.hasParts).toBe(true);
     expect(f.page.saving).toBe(false);
+  });
+
+  it("keeps a filled draft queued even if the session expires before submit", async () => {
+    const f = fixture();
+    await f.page.ngOnInit();
+    const row = f.page.parts.at(0);
+    row.patchValue({
+      sku: "P-1",
+      description: "Valve",
+      quantity: 2,
+      unitCost: 4.25,
+    });
+    f.page.form.controls.status.setValue("completed");
+    f.page.form.controls.technicalNotes.setValue("Replaced valve after expiry");
+    f.account.ensureAccount.mockRejectedValue(new Error("Session unavailable (401)"));
+    await f.page.submit();
+    expect(f.storage.enqueueReport).toHaveBeenCalledWith(
+      expect.objectContaining({
+        taskId: "t-1",
+        totalCostCents: 850,
+      }),
+    );
+    expect(f.page.message).toContain("queued for sync");
   });
 
   it("shows a missing cached task and does not submit it", async () => {

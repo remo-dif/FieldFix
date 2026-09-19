@@ -89,7 +89,7 @@ export class ConflictResolutionComponent implements OnInit {
       await this.storage.deletePendingReport(report.id);
       await this.router.navigate(["/tasks", report.taskId, "report"]);
     } catch (error) {
-      this.error =
+      this.message =
         error instanceof Error
           ? error.message
           : "Could not refresh this task from the server.";

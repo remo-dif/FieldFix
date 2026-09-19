@@ -94,6 +94,43 @@ describe("AccountSessionService", () => {
     expect(f.state.setAccountLocked).toHaveBeenCalledOnce();
   });
 
+  it("redirects to the IdP login flow when the server rejects the session", async () => {
+    const f = fixture();
+    const assign = vi.fn();
+    Object.defineProperty(globalThis, "window", {
+      configurable: true,
+      value: { location: { assign } },
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: false, status: 401 }),
+    );
+    await expect(f.service.ensureAccount()).rejects.toThrow(
+      "Session unavailable (401)",
+    );
+    expect(assign).toHaveBeenCalledWith("/api/auth/login");
+  });
+
+  it("redirects to the logout endpoint using a full-page POST", async () => {
+    const f = fixture();
+    const submit = vi.fn();
+    const form = { method: "", action: "", style: {}, submit };
+    const append = vi.fn(() => form);
+    const remove = vi.fn();
+    Object.defineProperty(globalThis, "document", {
+      configurable: true,
+      value: {
+        body: { appendChild: append, removeChild: remove },
+        createElement: vi.fn().mockReturnValue(form),
+      },
+    });
+    await f.service.signOut();
+    expect(f.storage.clearAccountData).toHaveBeenCalledOnce();
+    expect(form.method).toBe("post");
+    expect(form.action).toBe("/api/auth/logout");
+    expect(submit).toHaveBeenCalledOnce();
+  });
+
   it("clears prior account data before accepting a different verified account", async () => {
     const f = fixture();
     vi.stubGlobal(
