@@ -5,6 +5,7 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+  <p role="alert" *ngIf="error">{{ error }}</p>
   <p role="status" aria-live="polite">{{ message || 'Review any reports rejected by the server before submitting a new version.' }}</p>
 
   <ion-list *ngIf="reports.length; else noConflicts">
@@ -14,7 +15,8 @@
         <p>{{ report.status }} · {{ report.createdAt | date:'medium' }}</p>
         <p>{{ report.error || 'Version conflict or server rejection.' }}</p>
       </ion-label>
-      <ion-button fill="clear" color="danger" (click)="discardReport(report.id)">Discard</ion-button>
+      <ion-button fill="outline" size="small" (click)="refreshAndCreateNew(report)">Refresh &amp; create new</ion-button>
+      <ion-button fill="clear" color="danger" size="small" (click)="discardReport(report.id)">Discard</ion-button>
     </ion-item>
   </ion-list>
 

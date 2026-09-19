@@ -83,8 +83,16 @@ export class TaskListComponent implements OnInit {
   }
 
   async signOut(): Promise<void> {
-    await this.account.signOut();
-    window.location.href = "/tasks";
+    try {
+      await this.account.signOut();
+      window.location.href = "/tasks";
+    } catch (error) {
+      this.error$.next(
+        error instanceof Error
+          ? error.message
+          : "Resolve pending reports before signing out.",
+      );
+    }
   }
 
   trackTask(_index: number, task: Task): string {

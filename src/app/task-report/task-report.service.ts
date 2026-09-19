@@ -1,3 +1,4 @@
+import { Injectable } from "@angular/core";
 import { AbstractControl, FormArray, FormGroup } from "@angular/forms";
 import { PartRow, ReportPayload, Task } from "../offline/offline-db";
 
@@ -13,6 +14,7 @@ export interface TaskReportStorage {
   enqueueReport(payload: ReportPayload): Promise<void>;
 }
 
+@Injectable({ providedIn: "root" })
 export class TaskReportService {
   validateAndBuildPayload(
     task: Task,

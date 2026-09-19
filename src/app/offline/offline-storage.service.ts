@@ -31,7 +31,7 @@ export class OfflineStorageService {
 
   /** Resolve only after the IndexedDB commit so the UI can confirm durable local storage. */
   async enqueueReport(payload: ReportPayload): Promise<void> {
-    await this.sync.enqueueReport(payload as PendingReport);
+    await this.sync.enqueueReport(payload);
   }
 
   async getPendingReports(): Promise<PendingReport[]> {

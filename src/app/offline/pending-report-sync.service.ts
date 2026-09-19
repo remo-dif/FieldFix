@@ -5,6 +5,7 @@ import { ConnectivityService } from "../platform/connectivity.service";
 import {
   claimNextReport,
   PendingReport,
+  ReportPayload,
   sendReport,
   settleReport,
   SYNC_TAG,
@@ -36,7 +37,7 @@ export class PendingReportSyncService implements OnDestroy {
     void this.refreshPendingCount();
   }
 
-  async enqueueReport(payload: PendingReport): Promise<void> {
+  async enqueueReport(payload: ReportPayload): Promise<void> {
     await this.repository.enqueueReport(payload);
     await this.refreshPendingCount();
     if (this.connectivity.online$.value) void this.scheduleSync();

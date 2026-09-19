@@ -63,4 +63,15 @@ describe("TaskListComponent", () => {
     expect(f.page.tasks$.value).toEqual([task]);
     expect(f.page.error$.value).toBe("");
   });
+
+  it("shows the sign-out error instead of crashing when a queue is still unresolved", async () => {
+    const f = fixture();
+    f.account.signOut = vi.fn().mockRejectedValue(
+      new Error("Unsent reports must be resolved before switching accounts"),
+    );
+    await f.page.signOut();
+    expect(f.page.error$.value).toBe(
+      "Unsent reports must be resolved before switching accounts",
+    );
+  });
 });
