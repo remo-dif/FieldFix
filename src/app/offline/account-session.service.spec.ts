@@ -25,7 +25,10 @@ describe("AccountSessionService", () => {
     const state = {
       getPreviousAccountId: vi.fn().mockReturnValue(previous),
       isAccountLocked: vi.fn().mockReturnValue(false),
-      setVerifiedAccount: vi.fn(), setAccountLocked: vi.fn(), clearAccountLock: vi.fn(),
+      setVerifiedAccount: vi.fn(),
+      clearVerifiedAccount: vi.fn(),
+      setAccountLocked: vi.fn(),
+      clearAccountLock: vi.fn(),
       listenForAccountChanges: vi.fn().mockReturnValue(() => undefined),
     };
     const storage = { clearAccountData: vi.fn().mockResolvedValue(undefined) };
@@ -37,6 +40,7 @@ describe("AccountSessionService", () => {
       getPreviousAccountId: vi.fn().mockReturnValue("acct-7"),
       isAccountLocked: vi.fn().mockReturnValue(false),
       setVerifiedAccount: vi.fn(),
+      clearVerifiedAccount: vi.fn(),
       setAccountLocked: vi.fn(),
       clearAccountLock: vi.fn(),
       listenForAccountChanges: vi.fn().mockReturnValue(() => undefined),
@@ -89,5 +93,13 @@ describe("AccountSessionService", () => {
     })));
     await expect(f.service.ensureAccount()).rejects.toThrow('Invalid account identity');
     expect(f.state.setVerifiedAccount).not.toHaveBeenCalled();
+  });
+
+  it('signs out by clearing local account data and removing the verified account', async () => {
+    const f = fixture();
+    await f.service.signOut();
+    expect(f.storage.clearAccountData).toHaveBeenCalledOnce();
+    expect(f.state.clearVerifiedAccount).toHaveBeenCalledOnce();
+    expect(f.state.clearAccountLock).toHaveBeenCalledOnce();
   });
 });

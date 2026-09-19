@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="FieldFix icon">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#12465a"/>
+      <stop offset="100%" stop-color="#1f7a8c"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <path d="M108 340V170a32 32 0 0 1 32-32h76l48 48h122a32 32 0 0 1 32 32v122a32 32 0 0 1-32 32H140a32 32 0 0 1-32-32Z" fill="#dfeff2" opacity="0.96"/>
+  <path d="M170 225h170M170 285h128M170 345h106" stroke="#12465a" stroke-width="24" stroke-linecap="round"/>
+  <circle cx="356" cy="325" r="46" fill="#f5b700"/>
+  <path d="M334 325h44M356 303v44" stroke="#12465a" stroke-width="15" stroke-linecap="round"/>
+</svg>

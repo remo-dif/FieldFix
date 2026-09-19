@@ -1,0 +1,27 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Conflict review</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <p role="status" aria-live="polite">{{ message || 'Review any reports rejected by the server before submitting a new version.' }}</p>
+
+  <ion-list *ngIf="reports.length; else noConflicts">
+    <ion-item *ngFor="let report of reports">
+      <ion-label>
+        <h2>Task {{ report.taskId }}</h2>
+        <p>{{ report.status }} · {{ report.createdAt | date:'medium' }}</p>
+        <p>{{ report.error || 'Version conflict or server rejection.' }}</p>
+      </ion-label>
+      <ion-button fill="clear" color="danger" (click)="discardReport(report.id)">Discard</ion-button>
+    </ion-item>
+  </ion-list>
+
+  <ng-template #noConflicts>
+    <ion-note color="medium">No conflicting reports are waiting for review.</ion-note>
+  </ng-template>
+
+  <ion-button expand="block" fill="outline" [routerLink]="['/tasks']" *ngIf="reports.length === 0">Back to tasks</ion-button>
+  <ion-button expand="block" *ngIf="reports.length" (click)="reviewLater()">Review later</ion-button>
+</ion-content>

@@ -11,6 +11,12 @@
   <ion-content>
     <p role="alert" *ngIf="view.error">{{ view.error }}</p>
 
+    <ion-item lines="none">
+      <ion-label>Queued conflicts</ion-label>
+      <ion-button slot="end" fill="clear" routerLink="/conflicts">Review</ion-button>
+      <ion-button slot="end" fill="clear" color="medium" (click)="signOut()">Sign out</ion-button>
+    </ion-item>
+
     <ion-list *ngIf="view.tasks.length || !view.loading; else skeletonState">
       <ion-item *ngFor="let task of view.tasks; trackBy: trackTask" [routerLink]="['/tasks', task.id, 'report']">
         {{ task.title }} · {{ task.assetId }}

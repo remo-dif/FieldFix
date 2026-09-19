@@ -4,6 +4,7 @@ import { BehaviorSubject, combineLatest } from "rxjs";
 import { RouterLink } from "@angular/router";
 import {
   IonBadge,
+  IonButton,
   IonContent,
   IonHeader,
   IonItem,
@@ -25,6 +26,7 @@ import { TaskListService } from "./task-list.service";
     CommonModule,
     RouterLink,
     IonBadge,
+    IonButton,
     IonContent,
     IonHeader,
     IonItem,
@@ -77,6 +79,11 @@ export class TaskListComponent implements OnInit {
       this.error$.next("");
     }
     this.loading$.next(false);
+  }
+
+  async signOut(): Promise<void> {
+    await this.account.signOut();
+    window.location.href = "/tasks";
   }
 
   trackTask(_index: number, task: Task): string {

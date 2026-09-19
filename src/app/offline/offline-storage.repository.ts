@@ -68,6 +68,15 @@ export class OfflineStorageRepository {
     return reports;
   }
 
+  async deletePendingReport(id: string): Promise<void> {
+    const tx = (await this.dbPromise).transaction(
+      "pending_reports",
+      "readwrite",
+    );
+    tx.objectStore("pending_reports").delete(id);
+    await transactionDone(tx);
+  }
+
   async clearAccountData(): Promise<void> {
     const pending = await this.getPendingReports();
     if (pending.length)

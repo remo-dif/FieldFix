@@ -1,1 +1,32 @@
-{"name":"FieldFix","short_name":"FieldFix","start_url":"/tasks","display":"standalone","background_color":"#ffffff","theme_color":"#12465a"}
+{
+  "name": "FieldFix",
+  "short_name": "FieldFix",
+  "description": "Offline-first task reporting for field crews.",
+  "start_url": "/tasks",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "browser"],
+  "background_color": "#f4f7f8",
+  "theme_color": "#12465a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/maskable-icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    }
+  ]
+}

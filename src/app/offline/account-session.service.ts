@@ -54,4 +54,10 @@ export class AccountSessionService {
     this.state.setVerifiedAccount(session.accountId);
     return session.accountId;
   }
+
+  async signOut(): Promise<void> {
+    await this.storage.clearAccountData();
+    this.state.clearVerifiedAccount();
+    this.state.clearAccountLock();
+  }
 }

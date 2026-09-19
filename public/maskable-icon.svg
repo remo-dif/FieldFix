@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="FieldFix maskable icon">
+  <rect width="512" height="512" rx="128" fill="#12465a"/>
+  <rect x="74" y="116" width="364" height="280" rx="48" fill="#dfeff2"/>
+  <path d="M120 238h168M120 294h120M120 350h110" stroke="#12465a" stroke-width="22" stroke-linecap="round"/>
+  <circle cx="336" cy="286" r="56" fill="#f5b700"/>
+  <path d="M312 286h48M336 262v48" stroke="#12465a" stroke-width="16" stroke-linecap="round"/>
+</svg>

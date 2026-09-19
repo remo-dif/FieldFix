@@ -15,7 +15,7 @@ const report = { id: 'r-1', accountId: 'acct-1', taskId: 't-1', status: 'complet
 
 function fixture() {
   const tasks = { clear: vi.fn(), put: vi.fn(), getAll: vi.fn(() => ({ result: [task] })), get: vi.fn(() => ({ result: task })) };
-  const reports = { clear: vi.fn(), add: vi.fn(), getAll: vi.fn(() => ({ result: [] })) };
+  const reports = { clear: vi.fn(), add: vi.fn(), getAll: vi.fn(() => ({ result: [] })), delete: vi.fn() };
   const tx = { objectStore: vi.fn((name: string) => name === 'tasks' ? tasks : reports) };
   const db = { transaction: vi.fn(() => tx) };
   vi.mocked(dbApi.openFieldFixDb).mockResolvedValue(db as any);
@@ -50,6 +50,13 @@ describe('OfflineStorageRepository', () => {
     f.reports.getAll.mockReturnValue({ result: [report as any] });
     await expect(f.repository.clearAccountData()).rejects.toThrow('Unsent reports');
     expect(f.tasks.clear).not.toHaveBeenCalled();
+  });
+
+  it('removes a single pending conflict from the queue', async () => {
+    const f = fixture();
+    await f.repository.deletePendingReport('r-1');
+    expect(f.reports.clear).not.toHaveBeenCalled();
+    expect(f.tx.objectStore).toHaveBeenCalledWith('pending_reports');
   });
 
   it('clears both stores and caches after the queue is empty', async () => {

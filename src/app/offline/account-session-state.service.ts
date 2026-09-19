@@ -21,6 +21,10 @@ export class AccountSessionStateService {
     this.preferences.remove(ACCOUNT_LOCK_KEY);
   }
 
+  clearVerifiedAccount(): void {
+    this.preferences.remove(ACCOUNT_KEY);
+  }
+
   setAccountLocked(): void {
     this.preferences.set(ACCOUNT_LOCK_KEY, "true");
   }

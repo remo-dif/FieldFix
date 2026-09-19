@@ -38,6 +38,11 @@ export class OfflineStorageService {
     return this.repository.getPendingReports();
   }
 
+  async deletePendingReport(id: string): Promise<void> {
+    await this.repository.deletePendingReport(id);
+    await this.sync.refreshPendingCount();
+  }
+
   /** Call before completing sign-out or account switching, after resolving unsent reports. */
   async clearAccountData(): Promise<void> {
     await this.sync.clearAccountData();

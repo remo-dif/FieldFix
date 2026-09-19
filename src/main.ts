@@ -1,3 +1,4 @@
+import { isDevMode, provideZoneChangeDetection } from "@angular/core";
 import { bootstrapApplication } from "@angular/platform-browser";
 import {
   PreloadAllModules,
@@ -5,7 +6,6 @@ import {
   withComponentInputBinding,
   withPreloading,
 } from "@angular/router";
-import { isDevMode, provideZoneChangeDetection } from "@angular/core";
 import { provideServiceWorker } from "@angular/service-worker";
 import { provideIonicAngular } from "@ionic/angular";
 import { AppComponent } from "./app/app.component";
@@ -30,6 +30,13 @@ bootstrapApplication(AppComponent, {
           loadComponent: () =>
             import("./app/task-report/task-report.component").then(
               (m) => m.TaskReportComponent,
+            ),
+        },
+        {
+          path: "conflicts",
+          loadComponent: () =>
+            import("./app/conflicts/conflict-resolution.component").then(
+              (m) => m.ConflictResolutionComponent,
             ),
         },
       ],
