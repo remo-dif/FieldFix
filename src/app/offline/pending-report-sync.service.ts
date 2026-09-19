@@ -4,7 +4,6 @@ import { BackgroundSyncService } from "../platform/background-sync.service";
 import { ConnectivityService } from "../platform/connectivity.service";
 import {
   claimNextReport,
-  PendingReport,
   ReportPayload,
   sendReport,
   settleReport,

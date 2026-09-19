@@ -26,7 +26,7 @@ export class TaskListService {
     accountId: string,
     fetcher: TaskFetch = fetch,
   ): Promise<TaskListLoadResult> {
-    let cachedTasks: Task[] = [];
+    let cachedTasks: Task[];
     try {
       cachedTasks = await this.storage.getTasks();
     } catch {

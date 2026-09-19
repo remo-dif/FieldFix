@@ -13,7 +13,7 @@ import {
 } from "./app/offline/offline-db";
 
 declare const self: ServiceWorkerGlobalScope & {
-  __WB_MANIFEST: Array<{ url: string; revision?: string | null }>;
+  __WB_MANIFEST: { url: string; revision?: string | null }[];
 };
 interface FieldFixSyncEvent extends ExtendableEvent {
   tag: string;
